@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Name</title>
+
+<style>
+
+:root{
+    --c1:#ff5ea8;
+    --c2:#ff9f43;
+    --c3:#ffd93d;
+    --c4:#6ee7b7;
+    --c5:#60a5fa;
+    --c6:#a78bfa;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    font-family:Arial, sans-serif;
+
+    background:
+    radial-gradient(circle at 20% 20%,#ffd93d55 0%,transparent 20%),
+    radial-gradient(circle at 80% 30%,#ff5ea855 0%,transparent 20%),
+    radial-gradient(circle at 30% 80%,#60a5fa55 0%,transparent 20%),
+    linear-gradient(135deg,#ffb347,#ffcc70);
+}
+
+.card{
+    width:100%;
+    max-width:800px;
+
+    background:white;
+    border-radius:30px;
+    padding:30px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.2);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    color:#666;
+    margin-bottom:25px;
+}
+
+.pumpkin{
+    text-align:center;
+    font-size:50px;
+    margin-bottom:10px;
+}
+
+.row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+input{
+    flex:1;
+    min-width:200px;
+    padding:15px;
+    border-radius:15px;
+    border:3px solid #ffd93d;
+    font-size:18px;
+}
+
+button{
+    padding:15px 25px;
+    border:none;
+    border-radius:15px;
+    cursor:pointer;
+    color:white;
+    font-weight:bold;
+
+    background:
+    linear-gradient(
+        90deg,
+        var(--c1),
+        var(--c2),
+        var(--c3),
+        var(--c4),
+        var(--c5),
+        var(--c6)
+    );
+
+    background-size:400%;
+    animation:rainbow 6s linear infinite;
+}
+
+@keyframes rainbow{
+    from{background-position:0%}
+    to{background-position:100%}
+}
+
+.result{
+    margin-top:25px;
+    padding:20px;
+    border-radius:20px;
+    background:#fff8e6;
+}
+
+.output{
+    font-size:34px;
+    font-weight:bold;
+    color:#ff5ea8;
+    word-break:break-word;
+}
+
+.info{
+    margin-top:15px;
+    line-height:1.8;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+
+td,th{
+    border:1px solid #ddd;
+    padding:8px;
+}
+
+th{
+    background:#ffd93d;
+}
+
+@media(max-width:600px){
+
+    .output{
+        font-size:24px;
+    }
+
+    button{
+        width:100%;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="card">
+
+    <div class="pumpkin">🎃🌈🎃</div>
+
+    <h1>Number Name</h1>
+
+    <div class="row">
+        <input
+            id="number"
+            type="number"
+            min="0"
+            placeholder="Input Number >= 0">
+
+        <button onclick="generate()">
+            Get Name
+        </button>
+    </div>
+
+    <div class="result">
+
+        <div id="output" class="output">
+            -
+        </div>
+
+        <div id="info" class="info"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+/*
+MODEL:
+
+Nama =
+left[digit_awal]
++
+core[digit_tengah]
++
+right[digit_akhir]
+
+Setiap digit tengah memiliki:
+- core
+- 10 left
+- 10 right
+*/
+
+
+const kanokis = {
+
+    0:{
+        core:"on",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Ma",
+            8:"Egg",
+            9:"Min"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"egger",
+            9:"iniq"
+        }
+    },
+
+    1:{
+        core:"an",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tesan",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Min"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"egger",
+            9:"iniq"
+        }
+    },
+
+    2:{
+        core:"it",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Min"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"egger",
+            9:"iniq"
+        }
+    },
+
+    3:{
+        core:"es",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Mini"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"axo",
+            7:"aus",
+            8:"agger",
+            9:"aq"
+        }
+    },
+
+    4:{
+        core:"et",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Mini"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"ogger",
+            9:"iniq"
+        }
+    },
+
+    5:{
+        core:"erg",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Mini"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"ogger",
+            9:"iniq"
+        }
+    },
+
+	6:{
+        core:"x",
+        left:{
+            1:"Unane",
+            2:"Dite",
+            3:"Tesa",
+            4:"Dete",
+            5:"Verge",
+            6:"Dexe",
+            7:"Mau",
+            8:"Egge",
+            9:"Mini"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"ogger",
+            9:"iniq"
+        }
+    },
+
+	7:{
+        core:"a",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Min"
+        },
+        right:{
+            0:"unon",
+            1:"unan",
+            2:"wito",
+            3:"wesan",
+            4:"weto",
+            5:"wergo",
+            6:"uxo",
+            7:"waus",
+            8:"ugger",
+            9:"uq"
+        }
+    },
+
+	8:{
+        core:"gg",
+        left:{
+            1:"Unane",
+            2:"Dito",
+            3:"Tesa",
+            4:"Deto",
+            5:"Vergo",
+            6:"Dexo",
+            7:"Mau",
+            8:"Egge",
+            9:"Mini"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"ito",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"exo",
+            7:"aus",
+            8:"egger",
+            9:"iniq"
+        }
+    },
+
+	9:{
+        core:"ini",
+        left:{
+            1:"Unan",
+            2:"Dit",
+            3:"Tes",
+            4:"Det",
+            5:"Verg",
+            6:"Dex",
+            7:"Maw",
+            8:"Egg",
+            9:"Min"
+        },
+        right:{
+            0:"on",
+            1:"an",
+            2:"to",
+            3:"esan",
+            4:"eto",
+            5:"ergo",
+            6:"xo",
+            7:"us",
+            8:"gger",
+            9:"niq"
+        }
+    },
+
+};
+
+const kanokis2 = {
+	
+	0:{single:"Unon"},
+	
+
+    1:{
+		single: "Unan",
+        right:{
+            0:"Unanon",
+            1:"Unanan",
+            2:"Unanito",
+            3:"Unanesan",
+            4:"Unaeto",
+            5:"Unanergo",
+            6:"Unanexo",
+            7:"Unanaus",
+            8:"Unanegger",
+            9:"Unaniq"
+        }
+    },
+    2:{
+		single: "Dito",
+        right:{
+            0:"Diton",
+            1:"Ditan",
+            2:"Ditito",
+            3:"Ditesan",
+            4:"Diteto",
+            5:"Ditergo",
+            6:"Ditexo",
+            7:"Ditaus",
+            8:"Ditogger",
+            9:"Ditiniq"
+        }
+    },
+    3:{
+		single: "Tesan",
+        right:{
+            0:"Tesanon",
+            1:"Tesanan",
+            2:"Tesito",
+            3:"Tesesan",
+            4:"Teseto",
+            5:"Tesergo",
+            6:"Tesaxo",
+            7:"Tesaus",
+            8:"Tesagger",
+            9:"Tesaq"
+        }
+    },
+    4:{
+		single: "Deto",
+        right:{
+            0:"Deton",
+            1:"Detan",
+            2:"Detito",
+            3:"Detesan",
+            4:"Deteto",
+            5:"Detergo",
+            6:"Detexo",
+            7:"Detaus",
+            8:"Detogger",
+            9:"Detiniq"
+        }
+    },
+    5:{
+		single: "Vergo",
+        right:{
+            0:"Vergon",
+            1:"Vergan",
+            2:"Vergito",
+            3:"Vergesan",
+            4:"Vergeto",
+            5:"Vergergo",
+            6:"Vergexo",
+            7:"Vergaus",
+            8:"Vergogger",
+            9:"Verginiq"
+        }
+    },
+    6:{
+		single: "Dexo",
+        right:{
+            0:"Dexon",
+            1:"Dexan",
+            2:"Dexito",
+            3:"Dexesan",
+            4:"Dexeto",
+            5:"Dexergo",
+            6:"Dexexo",
+            7:"Dexaus",
+            8:"Dexogger",
+            9:"Dexiniq"
+        }
+    },
+    7:{
+		single: "Maus",
+        right:{
+            0:"Maon",
+            1:"Mawan",
+            2:"Mawito",
+            3:"Mawesan",
+            4:"Maweto",
+            5:"Mawergo",
+            6:"Mawexo",
+            7:"Mawaus",
+            8:"Maugger",
+            9:"Mawiniq"
+        }
+    },
+    8:{
+		single: "Egger",
+        right:{
+            0:"Eggon",
+            1:"Eggan",
+            2:"Eggito",
+            3:"Eggesan",
+            4:"Eggeto",
+            5:"Eggergo",
+            6:"Eggexo",
+            7:"Eggaus",
+            8:"Eggegger",
+            9:"Egginiq"
+        }
+    },
+    9:{
+		single: "Miniq",
+        right:{
+            0:"Minon",
+            1:"Minan",
+            2:"Minito",
+            3:"Miniesan",
+            4:"Minieto",
+            5:"Miniergo",
+            6:"Minixo",
+            7:"Minaus",
+            8:"Minigger",
+            9:"Mininiq"
+        }
+    },
+};
+
+linkers = ['nya','nya','di','te','de','ver','de','ma','heg','mi']
+
+function numConv(n,triple=0){
+	if (n === '111'){return "Unyan"}
+
+
+
+    let  a,b,c,family,name
+    if(n.length==1){
+		c = parseInt(n[0]);
+		family = kanokis2[c];
+
+		name = family.single;
+		return name;
+    }
+
+
+    if(n.length==2){
+		b = parseInt(n[0]);
+		c = parseInt(n[1]);
+		family = kanokis2[b];
+
+		name = family.right[c];
+        return name;
+    }
+
+    a = parseInt(n[0]);
+    b = parseInt(n[1]);
+    c = parseInt(n[2]);
+
+    family = kanokis[b];
+
+    name =
+        family.left[a]
+        + family.core
+        + family.right[c];
+	
+	return name;
+
+}
+
+function generate(){
+	 let n = '' + 
+        document.getElementById("number")
+        .value
+	
+	let hasil = "";
+	
+	while (n.length > 3){
+		let M = n.substring(n.length-3,n.length)
+		hasil = numConv('' + Number(M)) + hasil;
+		n = n.substring(0,n.length-3);
+		hasil = " " + linkers[n[n.length-1]] + " " + hasil;
+	}
+	if (n.length > 0){
+		hasil = numConv('' + n) + hasil;
+	}
+	
+	document.getElementById("output").textContent = hasil;
+}
+
+</script>
+
+</body>
+</html>
